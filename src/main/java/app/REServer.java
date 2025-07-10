@@ -3,8 +3,10 @@ package app;
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
 
+import java.io.ObjectInputStream.GetField;
 import java.net.URI;
 import java.net.http.*;
+import com.google.gson.JsonObject;
 
 
 public class REServer {
@@ -35,11 +37,17 @@ public class REServer {
                         .build();
                     HttpResponse<String> propResp = client.send(propReq, HttpResponse.BodyHandlers.ofString());
 
+                    // Create JSON body using Gson
+                    JsonObject body = new JsonObject();
+                    body.addProperty("queryType", "GET");
+                    body.addProperty("params", "property_id=" + id);
+                    body.addProperty("status", propResp.statusCode());
+
                     HttpRequest analyticsReq = HttpRequest.newBuilder()
                         .uri(URI.create(ANALYTICS_SERVER + "/metrics")) 
-                        .POST(HttpRequest.BodyPublishers.ofString(ctx.body()))
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                         .build();
-                        
+
                     client.sendAsync(analyticsReq, HttpResponse.BodyHandlers.ofString());
                     ctx.status(propResp.statusCode()).result(propResp.body());
                 });
@@ -74,11 +82,19 @@ public class REServer {
                         .build();
                     HttpResponse<String> propResp = client.send(propReq, HttpResponse.BodyHandlers.ofString());
 
+
+                    // Create JSON body using Gson
+                    JsonObject body = new JsonObject();
+                    body.addProperty("queryType", "GET");
+                    body.addProperty("params", "post_code=" + postcode);
+                    body.addProperty("status", propResp.statusCode());
+
                     HttpRequest analyticsReq = HttpRequest.newBuilder()
-                        .uri(URI.create(ANALYTICS_SERVER + "/metrics/add-postcode-query" + postcode)) 
-                        .POST(HttpRequest.BodyPublishers.noBody())
+                        .uri(URI.create(ANALYTICS_SERVER + "/metrics")) 
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                         .build();
-                    client.sendAsync(analyticsReq, HttpResponse.BodyHandlers.discarding());
+                    
+                    client.sendAsync(analyticsReq, HttpResponse.BodyHandlers.ofString());
                     ctx.status(propResp.statusCode()).result(propResp.body());
                 });
 
@@ -105,11 +121,18 @@ public class REServer {
                         .build();
                     HttpResponse<String> propResp = client.send(propReq, HttpResponse.BodyHandlers.ofString());
 
+                    // Create JSON body using Gson
+                    JsonObject body = new JsonObject();
+                    body.addProperty("queryType", "GET");
+                    body.addProperty("params", "post_code=" + postcode);
+                    body.addProperty("status", propResp.statusCode());
+
                     HttpRequest analyticsReq = HttpRequest.newBuilder()
-                        .uri(URI.create(ANALYTICS_SERVER + "/metrics/add-postcode-query" + postcode)) 
-                        .POST(HttpRequest.BodyPublishers.noBody())
+                        .uri(URI.create(ANALYTICS_SERVER + "/metrics")) 
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                         .build();
-                    client.sendAsync(analyticsReq, HttpResponse.BodyHandlers.discarding());
+
+                    client.sendAsync(analyticsReq, HttpResponse.BodyHandlers.ofString());
                     ctx.status(propResp.statusCode()).result(propResp.body());
                 });
 
